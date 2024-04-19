@@ -1,70 +1,148 @@
-# Getting Started with Create React App
+## The problem
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+The problem consists in rendering events on a calendar, avoiding overlapping events to visually overlap.
+Your implementation should meet the two following constraints:
 
-## Available Scripts
+1. Every overlapping event should have the same width as every event it overlaps
+2. Every event should use the maximum width available while satisfying constraint 1
 
-In the project directory, you can run:
+A visual illustration of the problem is given below.
 
-### `npm start`
+Rendering events on a calendar means here: the relative position of events to the top of the screen and their height is a function of the height of the screen, the start/end time of the calendar, and the start time/duration of the events. For example: if the calendar goes from 00:00 to 24:00 and the screen is 2400px high, an event starting at 12:00 and lasting 1h would be positioned at 1200px of the top of the screen and have a height of 100px.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Using the maximum width available here implies that the width of every group of mutually overlapping events equals the width of the window.
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+## The input
 
-### `npm test`
+The input (available below) is an array of events occurring on the same date. They have the following structure:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```javascript
+{
+  id: 1,
+  start: '15:00', // The event starts at 03:00 pm
+  duration: 90 // The duration is expressed in minutes
+}
+```
 
-### `npm run build`
+## The output
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Your code should render the events on a webpage in a container spanning the whole window.
+The top of the page represents 09:00 am. The bottom of the page represents 09:00 pm.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+The events should be represented as a `div` with a background color and a 1px border. The `div` should display the event's `id`.
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+Your implementation should be responsive (i.e. respond to window `resize` events).
 
-### `npm run eject`
+## Dependencies
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+You may use React, any lightweight templating library, or vanilla JS to do the rendering. You may use helper libraries such as lodash, etc. if you wish to. Javascript can be written in ES6.
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+The easiest way to share your code is a [sandbox](https://codesandbox.io/). If you wish to go with React, you may share a project created with [create-react-app](https://github.com/facebook/create-react-app), preferably on github.
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+## Browser support
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+Your code should run in major modern browsers.
 
-## Learn More
+## Evaluation
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+Our evaluation criteria are:
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+* the correctness of the algorithm
+* the readability of the code (code structure, variables naming, comments,…)
 
-### Code Splitting
+## Visual illustration of the problem
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+**1 event**
 
-### Analyzing the Bundle Size
+```
+┌────────────┐
+|            |
+└────────────┘
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+**2 events**
 
-### Making a Progressive Web App
+```
+┌─────┐┌─────┐
+|     |└─────┘
+└─────┘
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+**3 events where events 1, 2 and 3 overlap, but events 1 and 3 do not**
 
-### Advanced Configuration
+```
+┌─────┐
+|  1  |┌─────┐
+└─────┘|     |
+       |  2  |
+┌─────┐|     |
+|  3  |└─────┘
+└─────┘
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+The configuration above meets all constraints. Be careful, something like below would not meet constraint 2 :
 
-### Deployment
+```
+┌───┐
+| 1 |┌───┐
+└───┘|   |
+     | 2 |
+     |   |┌───┐
+     └───┘| 3 |
+          └───┘
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+**If we combine cases 1, 2 and 3, you should end up with something like**
 
-### `npm run build` fails to minify
+*The schema below assumes the width of event 1 equals the width of the window.*
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+```
+┌────────────┐
+|     1      |
+└────────────┘
+
+┌─────┐┌─────┐
+|     ||  3  |
+|  2  |└─────┘
+|     |
+└─────┘
+
+┌─────┐
+|  4  |┌─────┐
+└─────┘|     |
+       |  5  |
+┌─────┐|     |
+|  6  |└─────┘
+└─────┘
+```
+
+**Satisfying both constraints**
+
+*The schema below assumes the width of event 1 equals the width of the window.*
+
+
+```
+┌────────────┐
+|     1      |
+└────────────┘
+
+┌─────┐┌─────┐
+|     ||  3  |
+|  2  |└─────┘
+|     |
+└─────┘
+
+┌───┐┌───┐
+|   || 5 |
+| 4 |└───┘
+|   |
+└───┘
+```
+
+Events 2 et 3 satisfy both constraints. Events 4 and 5 do not.
+
+## How to start project
+
+* Clone the project.
+* Do yarn ( to install yarn).
+* Do yarn start to start the project.
